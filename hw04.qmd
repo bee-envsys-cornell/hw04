@@ -16,6 +16,8 @@ format:
             \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
             \DefineVerbatimEnvironment{OutputCode}{Verbatim}{breaklines,commandchars=\\\{\}}
 engine: julia
+julia:
+    exeflags: ["+1.10.4"]
 format-links: [pdf, ipynb]
 ---
 
