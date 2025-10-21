@@ -17,7 +17,7 @@ format:
             \DefineVerbatimEnvironment{OutputCode}{Verbatim}{breaklines,commandchars=\\\{\}}
 engine: julia
 julia:
-    exeflags: ["+1.10.4"]
+    exeflags: ["+1.11.5"]
 format-links: [pdf, ipynb]
 ---
 
@@ -30,7 +30,7 @@ format-links: [pdf, ipynb]
 ::: {.callout-important icon=false}
 ### Due Date
 
-Thursday, 11/07/23, 9:00pm
+Thursday, 11/06/25, 9:00pm
 :::
 
 ::: {.content-visible when-format="html"}
@@ -49,9 +49,10 @@ Otherwise, you can [find the Github repository here]({{< var github_org.repo >}}
 
 ### Instructions
 
-- Problem 1 asks you to formulate and solve a resource allocation problem using linear programming.
-- Problem 2 asks you to formulate, solve, and analyze a standard generating capacity expansion problem.
-- Problem 3 (5750 only) asks you to add a CO~2~ constraint to the capacity expansion problem and identify changes in the resulting solution.
+- Problem 1 asks you to analytically (or graphically) solve a linear program.
+- Problem 2 asks you to formulate and solve a resource allocation problem using linear programming.
+- Problem 3 asks you to formulate, solve, and analyze a standard generating capacity expansion problem.
+
 
 ### Load Environment
 
@@ -74,9 +75,23 @@ using CSV
 using MarkdownTables
 ```
 
-## Problems (Total: 50/60 Points)
+## Problems (Total: 30 Points)
 
-### Problem 1 (20 points)
+### Problem 1 (Total: 3 Points)
+
+Solve the following linear program **analytically**. Show your work and justify any reasoning.
+
+$$
+\begin{alignat}{2}
+&& \max_{x, y} \quad & 3x + 2y\\
+&&\text{subject to:} \quad & x + 4y \leq 16\\
+& && x - 2y \leq -1\\
+& && 0 \leq x \leq 4\\
+& && 1 \leq y \leq 4.
+\end{alignat}
+$$
+
+### Problem 2 (12 points)
 
 A farmer has access to a pesticide which can be used on corn, soybeans, and wheat fields, and costs $70/kg-yr to apply. The crop yields the farmer can obtain following crop yields by applying varying rates of pesticides to the field are shown in @tbl-yields.
 
@@ -98,13 +113,19 @@ The costs of production, *excluding pesticides*, for each crop, and selling pric
 
 Recently, environmental authorities have declared that farms cannot have an *average* application rate on soybeans, wheat, and corn which exceeds 0.8, 0.7, and 0.6 kg/ha, respectively. The farmer has asked you for advice on how they should plant crops and apply pesticides to maximize profits over 130 total ha while remaining in regulatory compliance if demand for each crop (which is the maximum the market would buy) this year is 250,000 kg?
 
-**In this problem**:
+#### Problem 2.1
 
-* Formulate a linear program for this resource allocation problem, including clear definitions of decision variable(s) (including units), objective function(s), and constraint(s) (make sure to explain functions and constraints with any needed derivations and explanations). **Tip: Make sure that all of your constraints are linear**.
-* Implement the program in `JuMP.jl` and find the solution. How many ha should the farmer dedicate to each crop and with what pesticide application rate(s)? How much profit will the farmer expect to make?
-* The farmer has an opportunity to buy an extra 10 ha of land. How much extra profit would this land be worth to the farmer? Discuss why this value makes sense and whether you would recommend the farmer should make the purchase.
+Formulate a linear program for this resource allocation problem, including clear definitions of decision variable(s) (including units), objective function(s), and constraint(s) (make sure to explain functions and constraints with any needed derivations and explanations). **Tip: Make sure that all of your constraints are linear**.
 
-### Problem 2 (30 points)
+#### Problem 2.2
+
+How many ha should the farmer dedicate to each crop and with what pesticide application rate(s)? How much profit will the farmer expect to make?
+
+#### Problem 2.3
+
+The farmer has an opportunity to buy an extra 10 ha of land. How much extra profit would this land be worth to the farmer? Discuss why this value makes sense and under what conditions you would recommend the farmer should make the purchase.
+
+### Problem 2 (15 points)
 
 For this problem, we will use hourly load (demand) data from 2013 in New York's Zone C (which includes Ithaca). The load data is loaded and plotted below in @fig-demand.
 
@@ -164,16 +185,30 @@ display(p1)
 display(p2)
 ```
 
-You have been asked to develop a generating capacity expansion plan for the utility in Riley County, NY, which currently has no existing electrical generation infrastructure. The utility can build any of the following plant types: geothermal, coal, natural gas combined cycle gas turbine (CCGT), natural gas combustion turbine (CT), solar, and wind. 
+You have been asked to develop a generating capacity expansion plan for the utility in Riley County, NY, which currently has no existing electrical generation infrastructure. The utility can build any of the following plant types: geothermal, coal, natural gas combined cycle gas turbine (CCGT), natural gas combustion turbine (CT), solar, and wind. The NY state legislature is planning to enact an annual CO<sub>2</sub> limit, which for the utility would limit the emissions in its footprint to 1.5 MtCO<sub>2</sub>/yr. 
 
 While coal, CCGT, and CT plants can generate at their full installed capacity, geothermal plants operate at maximum 85% capacity, and solar and wind available capacities vary by the hour depend on the expected meteorology. The utility will also penalize any non-served demand at a rate of $10,000/MWh.  
 
-**In this problem**:
+#### Problem 3.1
 
-* Formulate a linear program for this capacity expansion problem, including clear definitions of decision variable(s) (including units), objective function(s), and constraint(s) (make sure to explain functions and constraints with any needed derivations and explanations).
-* Implement your linear program in `JuMP.jl`. Find the optimal solution. How much should the utility build of each type of generating plant? What will the total cost be? How much energy will be non-served?
-* What fraction of annual generation does each plant type produce? How does this compare to the breakdown of built capacity that you found in Problem 1.5? Do these results make sense given the generator data?
-* Make a plot of the electricity price in each hour. Discuss any trends that you see.
+Formulate a linear program for this capacity expansion problem, including clear definitions of decision variable(s) (including units), objective function(s), and constraint(s) (make sure to explain functions and constraints with any needed derivations and explanations).
+
+#### Problem 3.2
+
+How much should the utility build of each type of generating plant? What will the total cost be? How much energy will be non-served?
+
+#### Problem 3.3
+
+What fraction of annual generation does each plant type produce? How does this compare to the breakdown of built capacity that you found in Problem 3.2? Do these results make sense given the demand and generator data?
+
+
+#### Problem 3.4
+
+Make a plot of the electricity price in each hour. Discuss any trends that you see.
+
+#### Problem 3.5
+
+What is the shadow price of CO<sub>2</sub>? What is the value to the utility be of allowing it to emit an additional 1000 tCO<sub>2</sub>/yr? 
 
 
 ::: {.callout-tip}
@@ -194,18 +229,6 @@ Use `round(x; digits=n)` to report values to the appropriate precision! If your 
 The output of specifying model components (variable or constraints) can be quite large for this problem because of the number of time periods. If you end a cell with an `@variable` or `@constraint` command, I *highly* recommend suppressing output by adding a semi-colon after the last command, or you might find that your notebook crashes.
 :::
 
-
-### Problem 3 (10 points)
-
-**This problem is only required for students in BEE 5750**.
-
-The NY state legislature is considering enacting an annual CO~2~ limit, which for the utility would limit the emissions in its footprint to 1.5 MtCO~2~/yr.
-
-**In this problem**:
-
-* Reformulate your linear program from Problem 2 with any necessary changes to capture the CO~2~ limit.
-* Implement the new optimization problem and find the optimal solution. How much should the utility build of each type of generating plant? What is different from your plan from Problem 1? Do these changes make sense?
-* What would the value to the utility be of allowing it to emit an additional 1000 tCO~2~/yr? An additional 5000?
 
 ::: {.cell .markdown}
 ## References
