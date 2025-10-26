@@ -82,13 +82,13 @@ using MarkdownTables
 Solve the following linear program **analytically**. Show your work and justify any reasoning.
 
 $$
-\begin{alignat}{2}
+\begin{alignedat}{2}
 && \max_{x, y} \quad & 3x + 2y\\
 &&\text{subject to:} \quad & x + 4y \leq 16\\
 & && x - 2y \leq -1\\
 & && 0 \leq x \leq 4\\
 & && 1 \leq y \leq 4.
-\end{alignat}
+\end{alignedat}
 $$
 
 ### Problem 2 (12 points)
