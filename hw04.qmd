@@ -201,11 +201,6 @@ How much should the utility build of each type of generating plant? What will th
 
 What fraction of annual generation does each plant type produce? How does this compare to the breakdown of built capacity that you found in Problem 3.2? Do these results make sense given the demand and generator data?
 
-
-#### Problem 3.4
-
-Make a plot of the electricity price in each hour. Discuss any trends that you see.
-
 #### Problem 3.5
 
 What is the shadow price of CO<sub>2</sub>? What is the value to the utility be of allowing it to emit an additional 1000 tCO<sub>2</sub>/yr? 
