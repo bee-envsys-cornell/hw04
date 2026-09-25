@@ -1,24 +1,36 @@
 ---
-title: "BEE 4750 Homework 4: Linear Programming and Capacity Expansion"
+title: "BEE 4750 Homework 4: Monte Carlo, Uncertainty, and Risk"
+pdf-title: "BEE 4750/5750"
+pdf-subtitle: "Homework 4: Monte Carlo, Uncertainty, and Risk"
 date: last-modified
 format:
-    html:        
+    html:
         warning: true
         error: true
     ipynb:
         warning: true
         error: true
         code-annotation: below
-    pdf:
-        include-in-header: 
-           text: |
-            \usepackage{fvextra}
-            \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
-            \DefineVerbatimEnvironment{OutputCode}{Verbatim}{breaklines,commandchars=\\\{\}}
+    typst:
+        warning: true
+        error: true
+        toc: false
+        date: "09/30/2026"
+        filters:
+          - _assets/typst-pdf/processing.lua
+execute:
+    echo: true
+    eval: false
 engine: julia
 julia:
-    exeflags: ["+1.11.5"]
-format-links: [pdf, ipynb]
+  exeflags: ["+1.11.5"]
+format-links:
+  - format: typst
+    text: PDF
+    icon: file-earmark-pdf
+  - format: ipynb
+    text: Notebook
+    icon: laptop
 ---
 
 ::: {.content-visible when-format="ipynb"}
@@ -30,16 +42,14 @@ format-links: [pdf, ipynb]
 ::: {.callout-important icon=false}
 ### Due Date
 
-Thursday, 11/06/25, 9:00pm
+Thursday, 10/08/26, 9:00pm
 :::
 
 ::: {.content-visible when-format="html"}
 
 :::{.callout-caution}
 
-If you are enrolled in the course, make sure that you use the GitHub Classroom link provided in Ed Discussion, or you may not be able to get help if you run into problems.
-
-Otherwise, you can [find the Github repository here]({{< var github_org.repo >}}/hw04).
+If you are enrolled in the course, use the assignment link posted on Ed Discussion so that we can find your repository if you need help.
 
 :::
 
@@ -49,10 +59,8 @@ Otherwise, you can [find the Github repository here]({{< var github_org.repo >}}
 
 ### Instructions
 
-- Problem 1 asks you to analytically (or graphically) solve a linear program.
-- Problem 2 asks you to formulate and solve a resource allocation problem using linear programming.
-- Problem 3 asks you to formulate, solve, and analyze a standard generating capacity expansion problem.
-
+- Problem 1 consists of problems that should be solved by hand: expectations, Monte Carlo error, and return periods.
+- Problem 2 is a short computational Monte Carlo analysis: propagate a flood hazard distribution through a depth-damage function.
 
 ### Load Environment
 
@@ -60,178 +68,103 @@ The following code loads the environment and makes sure all needed packages are 
 
 ```{julia}
 #| output: false
+
 import Pkg
 Pkg.activate(@__DIR__)
 Pkg.instantiate()
 ```
 
 ```{julia}
-using JuMP
-using HiGHS
-using DataFrames
+using Random
+using Distributions
+using Statistics
 using Plots
-using Measures
-using CSV
-using MarkdownTables
 ```
 
-## Problems (Total: 30 Points)
+## Problems (Total: 50 Points)
 
-### Problem 1 (Total: 3 Points)
+### Problem 1 (30 points)
 
-Solve the following linear program **analytically**. Show your work and justify any reasoning.
+#### Problem 1.1 (8 points)
 
-$$
-\begin{alignedat}{2}
-&& \max_{x, y} \quad & 3x + 2y\\
-&&\text{subject to:} \quad & x + 4y \leq 16\\
-& && x - 2y \leq -1\\
-& && 0 \leq x \leq 4\\
-& && 1 \leq y \leq 4.
-\end{alignedat}
-$$
+A treatment unit removes a fraction $R$ of the incoming load, where $R$ is uncertain with mean $\mathbb{E}[R] = 0.6$ and variance $\text{Var}(R) = 0.01$. The incoming load is a known constant $B_0 = 50$ mg/L, so the load leaving the unit is $Y = B_0(1 - R)$.
 
-### Problem 2 (12 points)
+1. Find $\mathbb{E}[Y]$ and $\text{Var}(Y)$.
 
-A farmer has access to a pesticide which can be used on corn, soybeans, and wheat fields, and costs $70/kg-yr to apply. The crop yields the farmer can obtain following crop yields by applying varying rates of pesticides to the field are shown in @tbl-yields.
+2. Now suppose the quantity you care about is the square of the outgoing load, $Z = Y^2$. Is $\mathbb{E}[Z]$ equal to $\left(\mathbb{E}[Y]\right)^2$? Compute both and state the difference.
 
-| Application Rate (kg/ha) | Soybean (kg/ha) | Wheat (kg/ha) | Corn (kg/ha) |
-|:----------------------------------:|:---------------:|:-------------:|:------------:|
-| 0 | 2900 | 3500 | 5900 |
-| 1 | 3800 | 4100 | 6700 |
-| 2 | 4400 | 4200 | 7900 |
-: Crop yields from applying varying pesticide rates for Problem 1. {#tbl-yields}
+3. In one or two sentences, explain what this implies about running an environmental model once at the mean value of an uncertain input.
 
-The costs of production, *excluding pesticides*, for each crop, and selling prices, are shown in @tbl-costs.
+#### Problem 1.2 (7 points)
 
-| Crop | Production Cost (\$/ha-yr) | Selling Price (\$/kg) |
-|:----:|:--------------------------------:|:--------------------:|
-| Soybeans | 350 |  0.36 |
-| Wheat | 280 | 0.27 |
-| Corn | 390 | 0.22 |
-: Costs of crop production, excluding pesticides, and selling prices for each crop. {#tbl-costs}
+You are estimating a probability by Monte Carlo. With $n = 2{,}000$ samples your estimate is $\hat{p} = 0.08$ and the standard error is $0.006$.
 
-Recently, environmental authorities have declared that farms cannot have an *average* application rate on soybeans, wheat, and corn which exceeds 0.8, 0.7, and 0.6 kg/ha, respectively. The farmer has asked you for advice on how they should plant crops and apply pesticides to maximize profits over 130 total ha while remaining in regulatory compliance if demand for each crop (which is the maximum the market would buy) this year is 250,000 kg?
+1. Write down the 95% confidence interval.
 
-#### Problem 2.1
+2. You need the standard error to be no larger than $0.002$. How many samples will that take? Show the reasoning, not just the number.
 
-Formulate a linear program for this resource allocation problem, including clear definitions of decision variable(s) (including units), objective function(s), and constraint(s) (make sure to explain functions and constraints with any needed derivations and explanations). **Tip: Make sure that all of your constraints are linear**.
+3. A colleague proposes reducing the error instead by using a finer spatial grid in the underlying simulation. Will that help with *this* source of error? Explain.
 
-#### Problem 2.2
+#### Problem 1.3 (7 points)
 
-How many ha should the farmer dedicate to each crop and with what pesticide application rate(s)? How much profit will the farmer expect to make?
+A pump station is designed against the 50-year flood.
 
-#### Problem 2.3
+1. What annual exceedance probability does that correspond to?
 
-The farmer has an opportunity to buy an extra 10 ha of land. How much extra profit would this land be worth to the farmer? Discuss why this value makes sense and under what conditions you would recommend the farmer should make the purchase.
+2. The station has a 20-year service life. Assuming years are independent, write the expression for the probability that it is overtopped at least once during that life. You do not need to evaluate it.
 
-### Problem 2 (15 points)
+3. Your client says: "the station was overtopped last year, so we have another 49 years before it happens again." Explain what is wrong with this.
 
-For this problem, we will use hourly load (demand) data from 2013 in New York's Zone C (which includes Ithaca). The load data is loaded and plotted below in @fig-demand.
+#### Problem 1.4 (8 points)
+
+Classify each of the following as primarily **aleatory** or primarily **epistemic** uncertainty, and justify each in one sentence.
+
+1. The daily variation in influent flow to a treatment plant.
+2. The strength of the ice-albedo feedback.
+3. The rate of sediment recycling in a shallow lake.
+4. Which of next year's storms will be the largest.
+
+
+### Problem 2 (20 points)
+
+Flood risk is usually quantified by propagating a distribution of flood depths through a depth-damage function, which converts a dflood epth into an economic loss. A common form for a house without a basement is a bounded logistic curve,
+
+$$d(h) = \mathbb{1}_{h > 0} \frac{L}{1 + \exp\left(-k(h - h_0)\right)},$$
+
+where $h$ is the flood depth in metres and $d$ is the damage in dollars. We'll use $L = \$200{,}000$, $k = 0.8$, and $h_0 = 3$ in our depth-damage function specification.
+
+Assume the annual maximum flood depth at this structure is distributed as
+
+$$h \sim \text{LogNormal}(1.2,\ 0.3).$$
+
+#### Problem 2.1 (5 points)
+
+Implement the depth-damage function and plot it over depths from 0 to 8m. On a second panel, plot the density of the hazard distribution over the same range.
+
+Looking at the two panels together: over what range of depths does a small change in depth produce the largest change in damage?
 
 ```{julia}
-#| echo: true
-#| output: true
-#| label: fig-demand
-#| fig-cap: Hourly load data for New York's Zone C in 2013.
-
-# load the data, pull Zone C, and reformat the DataFrame
-NY_demand = DataFrame(CSV.File("data/2013_hourly_load_NY.csv"))
-rename!(NY_demand, :"Time Stamp" => :Date)
-demand = NY_demand[:, [:Date, :C]]
-rename!(demand, :C => :Demand)
-demand[:, :Hour] = 1:nrow(demand)
-
-# plot demand
-plot(demand.Hour, demand.Demand, xlabel="Hour of Year", ylabel="Demand (MWh)", label=:false)
+function depth_damage(depth)
+    # TODO: return the damage in dollars for a flood of this depth.
+    # A depth at or below zero causes no damage.
+    error("depth_damage has not been written yet -- replace this line")
+end
 ```
 
-Next, we load the generator data, shown in @tbl-generators. This data includes fixed costs (\$/MW installed), variable costs (\$/MWh generated), and CO~2~ emissions intensity (tCO~2~/MWh generated).
+#### Problem 2.2 (8 points)
 
-```{julia}
-#| echo: true
-#| label: tbl-generators
-#| tbl-cap: Generator type data, including fixed costs (\$/MW installed), variable costs (\$/MWh generated), and CO~2~ emissions intensity (tCO~2~/MWh generated).
+Estimate the expected annual damage using Monte Carlo.
 
-gens = DataFrame(CSV.File("data/generators.csv"))
-```
+Report your estimate, a 95% confidence interval, the sample size you used, and the seed you set. Then justify the sample size by doubling it and comparing the estimates.
 
-Finally, we load the hourly solar and wind capacity factors, which are plotted in @fig-cf. These tell us the fraction of installed capacity which is expected to be available in a given hour for generation (typically based on the average meteorology).
+#### Problem 2.3 (7 points)
 
-```{julia}
-#| echo: true
-#| label: fig-cf
-#| layout-nrow: 2
-#| fig-cap: "Hourly solar and wind capacity factors."
-#| fig-subcap:
-#|   - "January"
-#|   - "July"
+1. Now estimate the 99th percentile of annual damage. How much larger is this than the mean?
 
-# load capacify factors into a DataFrame
-cap_factor = DataFrame(CSV.File("data/wind_solar_capacity_factors.csv"))
+2. For the same number of samples, your estimate of the 99th percentile is less precise than your estimate of the mean. Explain why.
 
-# plot January capacity factors
-p1 = plot(cap_factor.Wind[1:(24*31)], label="Wind")
-plot!(cap_factor.Solar[1:(24*31)], label="Solar")
-xaxis!("Hour of the Month")
-yaxis!("Capacity Factor")
+3. Your analysis produces a distribution of *damages*, not a distribution of *depths*. In one or two sentences, explain why just modeling depth does not fully capture risk, and identify which component of risk the depth-damage function represents. Is anything missing from this as a **risk analysis**?
 
-p2 = plot(cap_factor.Wind[4344:4344+(24*31)], label="Wind")
-plot!(cap_factor.Solar[4344:4344+(24*31)], label="Solar")
-xaxis!("Hour of the Month")
-yaxis!("Capacity Factor")
-
-display(p1)
-display(p2)
-```
-
-You have been asked to develop a generating capacity expansion plan for the utility in Riley County, NY, which currently has no existing electrical generation infrastructure. The utility can build any of the following plant types: geothermal, coal, natural gas combined cycle gas turbine (CCGT), natural gas combustion turbine (CT), solar, and wind. The NY state legislature is planning to enact an annual CO<sub>2</sub> limit, which for the utility would limit the emissions in its footprint to 1.5 MtCO<sub>2</sub>/yr. 
-
-While coal, CCGT, and CT plants can generate at their full installed capacity, geothermal plants operate at maximum 85% capacity, and solar and wind available capacities vary by the hour depend on the expected meteorology. The utility will also penalize any non-served demand at a rate of $10,000/MWh.  
-
-#### Problem 3.1
-
-Formulate a linear program for this capacity expansion problem, including clear definitions of decision variable(s) (including units), objective function(s), and constraint(s) (make sure to explain functions and constraints with any needed derivations and explanations).
-
-#### Problem 3.2
-
-How much should the utility build of each type of generating plant? What will the total cost be? How much energy will be non-served?
-
-#### Problem 3.3
-
-What fraction of annual generation does each plant type produce? How does this compare to the breakdown of built capacity that you found in Problem 3.2? Do these results make sense given the demand and generator data?
-
-
-#### Problem 3.4
-
-Make a plot of the electricity price in each hour. Discuss any trends that you see.
-
-#### Problem 3.5
-
-What is the shadow price of CO<sub>2</sub>? What is the value to the utility be of allowing it to emit an additional 1000 tCO<sub>2</sub>/yr? 
-
-
-::: {.callout-tip}
-## Significant Digits
-
-Use `round(x; digits=n)` to report values to the appropriate precision! If your number is on a different order of magnitude and you want to round to a certain number of significant digits, you can use `round(x; sigdigits=n)`.
-:::
-
-::: {.callout-tip}
-## Getting Variable Output Values
-
-`value.(x)` will report the values of a `JuMP` variable `x`, but it will return a special container which holds other information about `x` that is useful for `JuMP`. This means that you can't use this output directly for further calculations. To just extract the values, use `value.(x).data`.
-:::
-
-::: {.callout-tip}
-## Suppressing Model Command Output
-
-The output of specifying model components (variable or constraints) can be quite large for this problem because of the number of time periods. If you end a cell with an `@variable` or `@constraint` command, I *highly* recommend suppressing output by adding a semi-colon after the last command, or you might find that your notebook crashes.
-:::
-
-
-::: {.cell .markdown}
 ## References
 
 List any external references consulted, including classmates.
-:::

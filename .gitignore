@@ -33,3 +33,6 @@ docs/site/
 .DS_Store
 
 *_files/
+
+# Quarto build cache
+.quarto/
