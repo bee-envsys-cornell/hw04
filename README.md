@@ -10,10 +10,9 @@ If enrolled in the class, a PDF of the completed notebook, **with all cells eval
 
 After completing this lab, students will be able to:
 
-* reason about the locations of solutions to linear programs;
-* formulate a linear programming models from descriptions of decision problems;
-* use `JuMP.jl` to solve linear programs;
-* interpret the solution of a linear program and its shadow prices.
+* calculate expectations and variances of functions of random variables;
+* compute the sample size required to obtain a desired level of Monte Carlop recision
+* apply Monte Carlo to a risk analysis problem.
 
 ## Repository Overview
 

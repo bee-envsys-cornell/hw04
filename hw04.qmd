@@ -15,7 +15,7 @@ format:
         warning: true
         error: true
         toc: false
-        date: "09/30/2026"
+        date: "09/25/2026"
         filters:
           - _assets/typst-pdf/processing.lua
 execute:
@@ -61,6 +61,7 @@ If you are enrolled in the course, use the assignment link posted on Ed Discussi
 
 - Problem 1 consists of problems that should be solved by hand: expectations, Monte Carlo error, and return periods.
 - Problem 2 is a short computational Monte Carlo analysis: propagate a flood hazard distribution through a depth-damage function.
+- Problems 1.2 and 2.2 use confidence intervals, which we cover in class on Monday, September 28. Everything else can be started now.
 
 ### Load Environment
 
